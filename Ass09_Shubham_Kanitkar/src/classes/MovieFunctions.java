@@ -173,6 +173,32 @@ public class MovieFunctions {
 		return m;
 	}
 	
+	public static List<Movie> getMovieReleasedInYear(int year) {
+		
+		List<Movie> m = new ArrayList<Movie>();
+		
+		for (Movie movie : movies) {
+			Date d = movie.getReleaseDate();
+			Calendar c = Calendar.getInstance();
+			c.setTime(d);
+			if(c.get(Calendar.YEAR)==year)
+				m.add(movie);
+		}
+		return m;
+		
+	}
+	
+	public static List<Movie> getMoviesByActor(String ...actorNames) {
+		
+		List<Movie> m = new ArrayList<Movie>();
+		
+		for (Movie movie : movies) {
+			if(movie.getMovieCast().contains(actorNames[0])|movie.getMovieCast().contains(actorNames[1]))
+				m.add(movie);
+		}
+		return m;
+		
+	}
 	public static void main(String[] args) throws IOException, SQLException, ClassNotFoundException {
 		
 		Scanner sc = new Scanner(System.in);
@@ -185,20 +211,51 @@ public class MovieFunctions {
 		System.out.println("1. Add new movie");
 		System.out.println("2. Serialize");
 		System.out.println("3. Deserialize");
+		System.out.println("4. Get Movie by year");
+		System.out.println("4. Get Movie by actor names");
 		int n = sc.nextInt();
 		
 		switch(n) {
 		case 1: addMovie(new Movie(), movies);
 		        break;
+		        
 		case 2: serialize(movies, "D:\\file.txt");
 		        System.out.println("Done!!");
 		        break;
-		case 3 : List<Movie> t = deserialize("D:\\file.txt");
-        		 System.out.println("Done!!");
-        		 for(Movie m : t) {
-        			 System.out.println(m.getMovieName());
-        		 }
-        		 break;
+		        
+		case 3: List<Movie> movies1 = deserialize("D:\\file.txt");
+        	    System.out.println("Done!!");
+        	    for(Movie m : movies1) {
+        	    	System.out.println(m.getMovieName());
+        		}
+        	    break;
+		case 4: System.out.println("Enter the Year : ");
+                int year = sc.nextInt();
+			    List<Movie> movies2 = getMovieReleasedInYear(year);
+			    if (movies2.size()!=0) {
+			    	System.out.println("Movies found in the entered year are ");
+			    	for(Movie m : movies2) {
+			        	System.out.println(m.getMovieName());
+			        }
+				} else {
+					System.out.println("No movies found in the entered year.");
+				}
+		        break;
+		        
+		case 5:  System.out.println("Enter actor names to search for movie: ");
+		         sc.nextLine();
+		         String s1 = sc.nextLine();
+		         String s2 = sc.nextLine();
+		         List<Movie> movies3 = getMoviesByActor(s1,s2);
+		         if (movies3.size()!=0) {
+		        	 System.out.println("Following movies have the entered actors as cast members.");
+		        	 for(Movie m : movies3) {
+		        		 System.out.println(m.getMovieName());
+		        	 }
+		         } else {
+		        	 System.out.println("No movies stars the given actors.");
+		         }
+		         break;
 		}
 		
 		sc.close();
