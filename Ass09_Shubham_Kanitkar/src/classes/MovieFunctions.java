@@ -316,11 +316,14 @@ public class MovieFunctions {
 				    List<Movie> movies2 = getMovieReleasedInYear(year);
 				    if (movies2.size()!=0) {
 				    	System.out.println("Movies found in the entered year are ");
+				    	System.out.println("------------------------------");
 				    	for(Movie m : movies2) {
 				        	System.out.println(m.getMovieName());
 				        }
+				    	System.out.println("------------------------------");
 					} else {
 						System.out.println("No movies found in the entered year");
+						System.out.println("------------------------------");
 					}
 			        break;
 			        
@@ -331,11 +334,14 @@ public class MovieFunctions {
 			         List<Movie> movies3 = getMoviesByActor(s1,s2);
 			         if (movies3.size()!=0) {
 			        	 System.out.println("Following movies have the entered actors as cast members.");
+			        	 System.out.println("------------------------------");
 			        	 for(Movie m : movies3) {
 			        		 System.out.println(m.getMovieName());
+			             System.out.println("------------------------------");
 			        	 }
 			         } else {
 			        	 System.out.println("No movies stars the given actors.");
+			        	 System.out.println("------------------------------");
 			         }
 			         break;
 			         
@@ -367,11 +373,11 @@ public class MovieFunctions {
 	        
 	                break;
 			case 8: System.out.println("Enter amount : ");
-			        double amt =sc.nextDouble();
-			        Set<Movie> s = businessDone(amt);
-			        System.out.println("Movie with business greater than entered amount "+ amt);
-			        for(Movie w : s)
-			        	System.out.println(w.getMovieName());
+			        double amount = sc.nextDouble();
+			        Set<Movie> movieSet = businessDone(amount);
+			        System.out.println("Movie with business greater than "+ amount +" million dollars");
+			        for(Movie movie : movieSet)
+			        	System.out.println(movie.getMovieName());
 			        break;
 			
 			default: System.exit(1);
