@@ -157,22 +157,34 @@ public class MovieFunctions {
 		
 		out.close();
 		fout.close();
-		
-		
 	}
 	
+	public static List<Movie> deserialize(String fName) throws IOException, ClassNotFoundException {
+		List<Movie> m = new ArrayList<>();
+		
+		FileInputStream fin = new FileInputStream(new File(fName));
+		ObjectInputStream in = new ObjectInputStream(fin);
+		
+		for(int i=0; i<movies.size(); i++)
+			m.add((Movie)in.readObject());
+		in.close();
+		fin.close();
+		
+		return m;
+	}
 	
-	public static void main(String[] args) throws IOException, SQLException {
+	public static void main(String[] args) throws IOException, SQLException, ClassNotFoundException {
 		
 		Scanner sc = new Scanner(System.in);
 		
 		File file = new File("src/movies");
 		List<Movie> movies = addFromFile(file);
-		System.out.println(addToDatabase(movies));
+		//System.out.println(addToDatabase(movies));
 		
 		System.out.println("Enter choice ");
 		System.out.println("1. Add new movie");
-		System.out.println("2. Serializable");
+		System.out.println("2. Serialize");
+		System.out.println("3. Deserialize");
 		int n = sc.nextInt();
 		
 		switch(n) {
@@ -181,6 +193,12 @@ public class MovieFunctions {
 		case 2: serialize(movies, "D:\\file.txt");
 		        System.out.println("Done!!");
 		        break;
+		case 3 : List<Movie> t = deserialize("D:\\file.txt");
+        		 System.out.println("Done!!");
+        		 for(Movie m : t) {
+        			 System.out.println(m.getMovieName());
+        		 }
+        		 break;
 		}
 		
 		sc.close();
