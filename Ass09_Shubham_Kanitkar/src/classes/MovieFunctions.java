@@ -292,6 +292,8 @@ public class MovieFunctions {
 			System.out.println("4. Get Movie by year");
 			System.out.println("5. Get Movie by actor names");
 			System.out.println("6. Update movie rating");
+			System.out.println("7. Update movie business value");
+			System.out.println("8. Get business more than entered amount");
 			System.out.println("------------------------------");
 			int n = sc.nextInt();
 			
@@ -363,8 +365,15 @@ public class MovieFunctions {
 	                	}
 	                }
 	        
-	        break;
-			        
+	                break;
+			case 8: System.out.println("Enter amount : ");
+			        double amt =sc.nextDouble();
+			        Set<Movie> s = businessDone(amt);
+			        System.out.println("Movie with business greater than entered amount "+ amt);
+			        for(Movie w : s)
+			        	System.out.println(w.getMovieName());
+			        break;
+			
 			default: System.exit(1);
 			}
 			

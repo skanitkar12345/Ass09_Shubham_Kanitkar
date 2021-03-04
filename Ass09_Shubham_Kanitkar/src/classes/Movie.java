@@ -15,7 +15,7 @@ public class Movie implements Serializable{
     private String movieLang;
     private Date releaseDate;
     private List<String> movieCast;
-    private double movieRating, movieBusiness;
+    private double movieRating, movieBusiness; //Business in million dollars
 
 	public int getMovieId() {
 	    return movieId;
