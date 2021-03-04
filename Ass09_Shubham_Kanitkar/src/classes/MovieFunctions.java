@@ -5,11 +5,30 @@ import java.sql.*;
 import java.sql.Date;
 import java.util.*;
 import db.*;
+ 
+class BusinessComparator implements Comparator<Movie>{
 
+	@Override
+	public int compare(Movie m1, Movie m2) {
+		if (m1.getMovieBusiness()>m2.getMovieBusiness()) {
+			return -1;
+		}
+		
+		if (m1.getMovieBusiness()==m2.getMovieBusiness()) {
+			return 0;
+		}
+		
+		return 1;
+	}
+	
+}
 
 public class MovieFunctions {
 	
 	private static List<Movie> movies;
+	private static final String dbConfigFile = "src/database.properties";
+	private static final String movieFile = "src/movies";
+	private static final String outFile =  "D://file.txt";
 	
 	static {
 		movies = new ArrayList<Movie>();
@@ -55,7 +74,7 @@ public class MovieFunctions {
 		PreparedStatement statement;
 		
 		sql = "Insert INTO MovieDb(mId, mName, mLang, mDate, mType, mCast, mRating, mBusiness) Values(?,?,?,?,?,?,?,?)";
-		conn = CreateConnection.databaseConnection("src/database.properties");
+		conn = CreateConnection.databaseConnection(dbConfigFile);
 		
 		statement = conn.prepareStatement(sql);
 		
@@ -75,6 +94,9 @@ public class MovieFunctions {
 			statement.executeUpdate();
 		}
 		
+		statement.close();
+		conn.close();
+		
 		return true;
 		
 	}
@@ -86,7 +108,7 @@ public class MovieFunctions {
 		PreparedStatement statement;
 		
 		sql = "Insert INTO MovieDb(mId, mName, mLang, mDate, mType, mCast, mRating, mBusiness) Values(?,?,?,?,?,?,?,?)";
-		conn = CreateConnection.databaseConnection("src/database.properties");
+		conn = CreateConnection.databaseConnection(dbConfigFile);
 		
 		statement = conn.prepareStatement(sql);
 		
@@ -104,7 +126,10 @@ public class MovieFunctions {
 		statement.setDouble(7, movie.getMovieRating());
 		statement.setDouble(8, movie.getMovieBusiness());
 		statement.executeUpdate();
-				
+		
+		statement.close();
+		conn.close();
+		
 		return true;
 		
 	}
@@ -199,65 +224,150 @@ public class MovieFunctions {
 		return m;
 		
 	}
+	
+	public static void updateRating(Movie movie, double rating, List<Movie> movies) throws IOException, SQLException {
+		
+		for (Movie movie2 : movies) {
+			if(movie2.getMovieName().equals(movie.getMovieName()))
+				movie2.setMovieRating(rating);
+		}
+		
+		Connection conn = CreateConnection.databaseConnection(dbConfigFile);
+		Statement statement = conn.createStatement();
+		
+		statement.executeUpdate("Update MovieDb Set mRating = ' "+rating+ "' where mName = '"+movie.getMovieName()+"'");
+		
+		System.out.println("Updated succesfully");
+		
+		statement.close();
+		conn.close();
+	}
+	
+	public static void updateBusiness(Movie movie, double business, List<Movie> movies) throws IOException, SQLException {
+		
+		for (Movie movie2 : movies) {
+			if(movie2.getMovieName().equals(movie.getMovieName()))
+				movie2.setMovieBusiness(business);
+		}
+		
+		Connection conn = CreateConnection.databaseConnection(dbConfigFile);
+		Statement statement = conn.createStatement();
+		
+		statement.executeUpdate("Update MovieDb Set mBusiness = ' "+business+ "' where mName = '"+movie.getMovieName()+"'");
+		
+		System.out.println("Updated succesfully");
+		
+		statement.close();
+		conn.close();
+	}
+	
+	public static Set<Movie> businessDone(double amount) {
+		
+		Comparator<Movie> c = new BusinessComparator();
+		
+		Set<Movie> movieSet = new TreeSet<>(c);
+		
+		for (Movie movie : movies) {
+			if (movie.getMovieBusiness()>amount) {
+				movieSet.add(movie);
+			}
+		}
+		return movieSet;
+		
+	}
+	
 	public static void main(String[] args) throws IOException, SQLException, ClassNotFoundException {
 		
 		Scanner sc = new Scanner(System.in);
 		
-		File file = new File("src/movies");
+		File file = new File(movieFile);
 		List<Movie> movies = addFromFile(file);
-		//System.out.println(addToDatabase(movies));
-		
-		System.out.println("Enter choice ");
-		System.out.println("1. Add new movie");
-		System.out.println("2. Serialize");
-		System.out.println("3. Deserialize");
-		System.out.println("4. Get Movie by year");
-		System.out.println("4. Get Movie by actor names");
-		int n = sc.nextInt();
-		
-		switch(n) {
-		case 1: addMovie(new Movie(), movies);
-		        break;
-		        
-		case 2: serialize(movies, "D:\\file.txt");
-		        System.out.println("Done!!");
-		        break;
-		        
-		case 3: List<Movie> movies1 = deserialize("D:\\file.txt");
-        	    System.out.println("Done!!");
-        	    for(Movie m : movies1) {
-        	    	System.out.println(m.getMovieName());
-        		}
-        	    break;
-		case 4: System.out.println("Enter the Year : ");
-                int year = sc.nextInt();
-			    List<Movie> movies2 = getMovieReleasedInYear(year);
-			    if (movies2.size()!=0) {
-			    	System.out.println("Movies found in the entered year are ");
-			    	for(Movie m : movies2) {
-			        	System.out.println(m.getMovieName());
-			        }
-				} else {
-					System.out.println("No movies found in the entered year.");
-				}
-		        break;
-		        
-		case 5:  System.out.println("Enter actor names to search for movie: ");
-		         sc.nextLine();
-		         String s1 = sc.nextLine();
-		         String s2 = sc.nextLine();
-		         List<Movie> movies3 = getMoviesByActor(s1,s2);
-		         if (movies3.size()!=0) {
-		        	 System.out.println("Following movies have the entered actors as cast members.");
-		        	 for(Movie m : movies3) {
-		        		 System.out.println(m.getMovieName());
-		        	 }
-		         } else {
-		        	 System.out.println("No movies stars the given actors.");
-		         }
-		         break;
+		System.out.println(addToDatabase(movies));
+		while (true) {
+			System.out.println("------------------------------");
+			System.out.println("Enter choice ");
+			System.out.println("1. Add new movie");
+			System.out.println("2. Serialize");
+			System.out.println("3. Deserialize");
+			System.out.println("4. Get Movie by year");
+			System.out.println("5. Get Movie by actor names");
+			System.out.println("6. Update movie rating");
+			System.out.println("------------------------------");
+			int n = sc.nextInt();
+			
+			switch(n) {
+			case 1: addMovie(new Movie(), movies);
+			        break;
+			        
+			case 2: serialize(movies, outFile);
+			        System.out.println("Done!!");
+			        break;
+			        
+			case 3: List<Movie> movies1 = deserialize(outFile);
+	        	    System.out.println("Done!!");
+	        	    for(Movie m : movies1) {
+	        	    	System.out.println(m.getMovieName());
+	        		}
+	        	    break;
+			case 4: System.out.println("Enter the Year : ");
+	                int year = sc.nextInt();
+				    List<Movie> movies2 = getMovieReleasedInYear(year);
+				    if (movies2.size()!=0) {
+				    	System.out.println("Movies found in the entered year are ");
+				    	for(Movie m : movies2) {
+				        	System.out.println(m.getMovieName());
+				        }
+					} else {
+						System.out.println("No movies found in the entered year");
+					}
+			        break;
+			        
+			case 5:  System.out.println("Enter actor names to search for movie: ");
+			         sc.nextLine();
+			         String s1 = sc.nextLine();
+			         String s2 = sc.nextLine();
+			         List<Movie> movies3 = getMoviesByActor(s1,s2);
+			         if (movies3.size()!=0) {
+			        	 System.out.println("Following movies have the entered actors as cast members.");
+			        	 for(Movie m : movies3) {
+			        		 System.out.println(m.getMovieName());
+			        	 }
+			         } else {
+			        	 System.out.println("No movies stars the given actors.");
+			         }
+			         break;
+			         
+			case 6: System.out.println("Enter movie name and changed rating");
+			        sc.nextLine();
+			        String movieName = sc.nextLine();
+			        sc.nextLine();
+			        double rating = sc.nextDouble();
+			        
+			        for (Movie movie : movies) {
+			        	if (movie.getMovieName().equals(movieName)) {
+							updateRating(movie, rating, movies);
+							
+						}
+					}
+			        
+			        break;
+			        
+			case 7: System.out.println("Enter movie name and changed business value");
+			        sc.nextLine();
+	                String movieName2 = sc.nextLine();
+	                sc.nextLine();
+	                double business = sc.nextDouble();
+	                for (Movie movie : movies) {
+	                	if (movie.getMovieName().equals(movieName2)) {
+	                		updateBusiness(movie, business, movies);
+	                	}
+	                }
+	        
+	        break;
+			        
+			default: System.exit(1);
+			}
+			
 		}
-		
-		sc.close();
 	}
 }
